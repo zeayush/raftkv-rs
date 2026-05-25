@@ -1,0 +1,51 @@
+services:
+  node1:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: raftkv-node1
+    volumes:
+      - ./config/node1.toml:/config/config.toml
+      - node1-data:/data
+    ports:
+      - "7001:7001"   # gRPC (Raft + KV)
+      - "6379:6379"   # Redis proxy
+    networks:
+      - raft-net
+
+  node2:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: raftkv-node2
+    volumes:
+      - ./config/node2.toml:/config/config.toml
+      - node2-data:/data
+    ports:
+      - "7002:7001"
+      - "6380:6379"
+    networks:
+      - raft-net
+
+  node3:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: raftkv-node3
+    volumes:
+      - ./config/node3.toml:/config/config.toml
+      - node3-data:/data
+    ports:
+      - "7003:7001"
+      - "6381:6379"
+    networks:
+      - raft-net
+
+networks:
+  raft-net:
+    driver: bridge
+
+volumes:
+  node1-data:
+  node2-data:
+  node3-data:
