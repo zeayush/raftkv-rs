@@ -47,20 +47,18 @@ impl RaftNode {
     ///   On reset signal:     restart the timer with a new random duration.
     pub async fn run_election_timer(&self) {
         // TODO:
-        // let mut reset_rx = self.reset_election_timer_rx.lock().await;
-        // loop {
-        //     let timeout = random_election_timeout(&self.config.raft);
-        //     tokio::select! {
-        //         _ = sleep(timeout) => {
-        //             self.start_election().await;
-        //             break; // or loop again depending on outcome
-        //         }
-        //         _ = reset_rx.recv() => {
-        //             // received heartbeat — restart timer
-        //         }
-        //     }
-        // }
-        todo!("implement election timer loop with tokio::select!")
+        let mut reset_rx = self.reset_election_timer_rx.lock().await;
+        loop {
+            let timeout = random_election_timeout(&self.config.raft)
+            tokio::select! {
+                _ = sleep(timeout) => {
+                    self.start_election().await();
+                    break;
+                }
+                _ = reset_rx.recv() => {
+                }
+            }
+        }
     }
 
     // ── Starting an election ──────────────────────────────────────────────────
@@ -75,6 +73,9 @@ impl RaftNode {
     ///   5. Collect responses via a channel; call handle_vote_response().
     pub async fn start_election(&self) {
         // TODO: implement election initiation
+        let state = self.state.lock().await();    
+        state.become_candidate();
+
         todo!("start election: become candidate, persist state, send RequestVote RPCs")
     }
 
